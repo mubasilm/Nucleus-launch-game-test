@@ -19,7 +19,8 @@
   };
 
   const canvas = document.getElementById("game");
-  const ctx = canvas.getContext("2d");
+  const ctx = canvas.getContext("2d", { alpha: false, desynchronized: true });
+  ctx.imageSmoothingEnabled = false;
   const overlay = document.getElementById("screen-overlay");
   const hud = document.getElementById("screen-hud");
   const scoreEl = document.getElementById("hud-score");
@@ -108,7 +109,7 @@
     health: MAX_HEALTH,
     invuln: 0,
     combo: 0,
-    speed: 2.2,
+    speed: 3.0,
     frame: 0,
     muted: false,
     shake: 0,
@@ -135,6 +136,10 @@
   };
 
   const audio = { ctx: null };
+  const skyGradients = {};
+  const fitTextCache = new Map();
+  const shareCard = { canvas: null, pending: null, lastScore: -1 };
+  let lastHudHealth = -1;
 
   function rand(a, b) {
     return Math.random() * (b - a) + a;
@@ -262,7 +267,8 @@
         comboEl.hidden = true;
       }
     }
-    if (healthEl) {
+    if (healthEl && state.health !== lastHudHealth) {
+      lastHudHealth = state.health;
       healthEl.textContent = "";
       for (let i = 0; i < MAX_HEALTH; i += 1) {
         const h = document.createElement("span");
@@ -287,9 +293,10 @@
     state.started = full;
     state.score = 0;
     state.health = MAX_HEALTH;
+    lastHudHealth = -1;
     state.invuln = 0;
     state.combo = 0;
-    state.speed = 2.2;
+    state.speed = 3.0;
     state.frame = 0;
     state.shake = 0;
     state.flash = 0;
@@ -401,7 +408,6 @@
       state.shake = 6;
     }
     checkMilestones();
-    renderShareCard();
   }
 
   function collectStar(star) {
@@ -453,7 +459,7 @@
     state.started = false;
     playSound("over");
     state.shake = 22;
-    renderShareCard();
+    scheduleShareCard();
     if (winTag) winTag.textContent = state.score + " revenue capacity";
     if (winTitle) winTitle.textContent = "Deal health hit zero.";
     if (winText) {
@@ -498,8 +504,8 @@
     state.player.leg += 0.24;
     const diff = stageDifficulty();
     state.speed = Math.min(
-      6.2,
-      2.2 + state.frame / 2000 + diff.speedBonus
+      7.5,
+      3.0 + state.frame / 1600 + diff.speedBonus
     );
     if (state.invuln > 0) state.invuln -= 1;
     if (state.shake > 0) state.shake -= 1;
@@ -612,11 +618,15 @@
   }
 
   function drawSky() {
-    const sky = STAGE_SKIES[currentStageIndex()];
-    const g = ctx.createLinearGradient(0, HUD_H, 0, GROUND);
-    g.addColorStop(0, sky.top);
-    g.addColorStop(1, sky.bottom);
-    ctx.fillStyle = g;
+    const stageIdx = currentStageIndex();
+    const sky = STAGE_SKIES[stageIdx];
+    if (!skyGradients[stageIdx]) {
+      const g = ctx.createLinearGradient(0, HUD_H, 0, GROUND);
+      g.addColorStop(0, sky.top);
+      g.addColorStop(1, sky.bottom);
+      skyGradients[stageIdx] = g;
+    }
+    ctx.fillStyle = skyGradients[stageIdx];
     ctx.fillRect(0, HUD_H, W, GROUND - HUD_H);
 
     const graphY = GROUND - 95;
@@ -666,12 +676,15 @@
   }
 
   function fitText(text, maxW, startSize) {
+    const key = text + "|" + maxW + "|" + startSize;
+    if (fitTextCache.has(key)) return fitTextCache.get(key);
     let size = startSize;
     ctx.font = "bold " + size + "px Inter, sans-serif";
     while (ctx.measureText(text).width > maxW && size > 5) {
       size -= 1;
       ctx.font = "bold " + size + "px Inter, sans-serif";
     }
+    fitTextCache.set(key, size);
     return size;
   }
 
@@ -957,11 +970,16 @@
 
   function renderShareCard() {
     if (!sharePreview) return;
-    const card = document.createElement("canvas");
-    const Wc = 1200;
-    const Hc = 630;
-    card.width = Wc;
-    card.height = Hc;
+    if (shareCard.lastScore === state.score && sharePreview.dataset.url) return;
+    shareCard.lastScore = state.score;
+    if (!shareCard.canvas) {
+      shareCard.canvas = document.createElement("canvas");
+      shareCard.canvas.width = 1200;
+      shareCard.canvas.height = 630;
+    }
+    const card = shareCard.canvas;
+    const Wc = card.width;
+    const Hc = card.height;
     const c = card.getContext("2d");
     const stage = currentStage().name;
     const stageIdx = currentStageIndex();
@@ -1078,6 +1096,14 @@
     if (shareX) shareX.href = "https://twitter.com/intent/tweet?text=" + text;
   }
 
+  function scheduleShareCard() {
+    if (shareCard.pending) return;
+    shareCard.pending = requestAnimationFrame(() => {
+      shareCard.pending = null;
+      renderShareCard();
+    });
+  }
+
   function start() {
     initAudio();
     reset(true);
@@ -1168,13 +1194,4 @@
   if (highScoreEl) highScoreEl.textContent = String(getHighScore());
   reset(false);
   draw();
-  if (sharePreview && logoImg) {
-    const showPreview = () => {
-      state.score = Math.max(getHighScore(), 1250);
-      state.stageIndex = currentStageIndex();
-      renderShareCard();
-    };
-    if (logoImg.complete) showPreview();
-    else logoImg.addEventListener("load", showPreview);
-  }
 })();

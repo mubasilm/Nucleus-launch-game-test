@@ -148,6 +148,7 @@ body {
   height: auto;
   image-rendering: pixelated;
   image-rendering: crisp-edges;
+  contain: strict;
 }
 
 .screen-overlay {
