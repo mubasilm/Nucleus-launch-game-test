@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Deal Dash | Revenue Activation Game by Nucleus</title>
+  <meta name="description" content="Deal Dash is a browser game by Nucleus and GTM Buddy. Jump past sales chaos, collect revenue capacity, and see Revenue Activation in action." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="styles.css" />
+</head>
+<body>
+  <div class="sky" aria-hidden="true">
+    <span class="cloud c1"></span>
+    <span class="cloud c2"></span>
+    <span class="cloud c3"></span>
+  </div>
+
+  <header class="site-head">
+    <a href="https://gtmbuddy.ai/product/nucleus" target="_blank" rel="noopener" class="logo-link">
+      <img id="logo-img" src="nucleus-logo.png" alt="Nucleus by GTM Buddy" class="logo-img" />
+    </a>
+    <div class="social">
+      <a href="https://www.linkedin.com/company/gtm-buddy/" target="_blank" rel="noopener">LinkedIn</a>
+      <a href="https://x.com/gtmbuddy" target="_blank" rel="noopener">X</a>
+    </div>
+  </header>
+
+  <main class="stage">
+    <p class="eyebrow">NUCLEUS · REVENUE ACTIVATION</p>
+    <h1 class="title">DEAL<br />DASH</h1>
+    <p class="tagline">Unlock revenue capacity now.</p>
+    <p class="subtitle">Run the deal cycle. Collect signals. Dodge stage blockers.</p>
+    <p class="lede">Each stage of the sales cycle has friction. Nucleus activates the right signal in-flow so reps move deals forward without leaving their workflow.</p>
+
+    <div class="cabinet" id="cabinet">
+      <div class="cabinet-bezel">
+        <canvas id="game" width="640" height="400" aria-label="Deal Dash runner game"></canvas>
+
+        <div class="screen-overlay" id="screen-overlay">
+          <p class="overlay-game-name">DEAL DASH</p>
+          <p class="screen-copy">AUTO-RUNNER · <kbd>SPACE</kbd> OR TAP TO JUMP</p>
+
+          <div class="key-cards" aria-label="How to play">
+            <div class="key-card good">
+              <span class="key-icon coin-icon" aria-hidden="true"></span>
+              <strong>Gold signal</strong>
+              <span>+100 capacity per signal</span>
+            </div>
+            <div class="key-card bad">
+              <span class="key-icon enemy-icon" aria-hidden="true"></span>
+              <strong>Stage blocker</strong>
+              <span>Red card = deal friction (-1 heart)</span>
+            </div>
+            <div class="key-card boost">
+              <span class="key-icon star-icon" aria-hidden="true">★</span>
+              <strong>Nucleus boost</strong>
+              <span>Slow-mo in-flow activation</span>
+            </div>
+          </div>
+
+          <p class="stage-hint">PROSPECT → DISCOVERY → DEMO → PROPOSAL → NEGOTIATE → CLOSE</p>
+
+          <button type="button" class="start-btn" id="start-btn">START GAME</button>
+          <p class="screen-prize">3 HEARTS · ENDLESS RUN · BEAT YOUR BEST</p>
+        </div>
+
+        <div class="screen-hud" id="screen-hud" hidden>
+          <button type="button" class="mute-btn" id="mute-btn" aria-label="Toggle sound">Sound on</button>
+          <div class="hud-health" id="hud-health" aria-label="Deal health"></div>
+          <div class="hud-score-wrap">
+            <span class="hud-pts-label">CAPACITY</span>
+            <span id="hud-score">0</span>
+          </div>
+          <span class="hud-combo" id="hud-combo" hidden>COMBO x2</span>
+          <span class="hud-goal" id="hud-goal" hidden>endless</span>
+        </div>
+
+        <p class="screen-toast" id="screen-toast" hidden role="status"></p>
+      </div>
+    </div>
+
+    <section class="below">
+      <h2>What is Revenue Activation?</h2>
+      <p class="definition">Revenue Activation is the operating system that converts rep readiness into consistent revenue execution by removing execution friction and delivering the right signal inside the workflow at the exact moment a selling decision is made.</p>
+
+      <div class="steps">
+        <div class="step step-good">
+          <strong>Collect gold signals</strong>
+          <span>Each signal adds revenue capacity and pushes the deal cycle forward.</span>
+        </div>
+        <div class="step step-bad">
+          <strong>Dodge stage blockers</strong>
+          <span>Red cards show the sales stage and blocker: No Show, Legal, Pricing?, Ghosted, and more.</span>
+        </div>
+        <div class="step">
+          <strong>Advance through the cycle</strong>
+          <span>Score 350+ to move from Prospect to Discovery, Demo, Proposal, Negotiate, and Close.</span>
+        </div>
+        <div class="step">
+          <strong>Your best run</strong>
+          <span><strong id="high-score-val">0</strong> revenue capacity</span>
+        </div>
+      </div>
+
+      <a class="cta-link" href="https://gtmbuddy.ai/product/nucleus" target="_blank" rel="noopener">Unlock revenue capacity now</a>
+    </section>
+
+    <section class="share-block" id="share-section" hidden>
+      <h2>Share your score</h2>
+      <p>Download the score card or post to LinkedIn and X. Challenge another rep.</p>
+      <div class="share-preview-wrap">
+        <img id="share-preview" class="share-preview" alt="Deal Dash score card preview" width="600" height="315" />
+      </div>
+      <div class="share-actions">
+        <a class="share-btn primary" id="download-btn" href="#" download="deal-dash-score.png">Download image</a>
+        <a class="share-btn" id="share-linkedin" href="#" target="_blank" rel="noopener">Share on LinkedIn</a>
+        <a class="share-btn" id="share-x" href="#" target="_blank" rel="noopener">Share on X</a>
+      </div>
+    </section>
+  </main>
+
+  <dialog class="win-dialog" id="win-dialog" aria-labelledby="win-title">
+    <div class="win-inner">
+      <img src="nucleus-logo.png" alt="Nucleus by GTM Buddy" class="win-logo" />
+      <p class="win-tag" id="win-tag">0 revenue capacity</p>
+      <h3 id="win-title">Deal health hit zero.</h3>
+      <p id="win-text">Unlock revenue capacity now. Dodge stage blockers and collect gold signals.</p>
+      <div class="win-actions">
+        <button type="button" class="win-btn primary" id="replay-btn">Play again</button>
+        <button type="button" class="win-btn" id="share-score-btn">Share score</button>
+        <a class="win-btn ghost" href="https://gtmbuddy.ai/product/nucleus" target="_blank" rel="noopener">Unlock revenue capacity now</a>
+      </div>
+    </div>
+  </dialog>
+
+  <footer class="foot">
+    <p>© 2026 · <a href="https://gtmbuddy.ai/product/nucleus" target="_blank" rel="noopener">Nucleus</a> by <a href="https://gtmbuddy.ai/" target="_blank" rel="noopener">GTM Buddy</a></p>
+  </footer>
+
+  <script src="game.js"></script>
+</body>
+</html>
